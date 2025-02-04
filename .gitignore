@@ -1,0 +1,11 @@
+# vim files
+*.swp
+*.swo
+
+# binary
+philo
+*.out
+*.app
+*.exe
+*.a
+*.so
