@@ -6,7 +6,7 @@
 /*   By: joleksia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/01 12:58:53 by joleksia          #+#    #+#             */
-/*   Updated: 2025/02/04 14:29:52 by joleksia         ###   ########.fr       */
+/*   Updated: 2025/02/13 10:48:06 by joleksia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,5 +29,6 @@ int	philo_start(t_table *table)
 	}
 	pthread_create(&table->mid, NULL,
 		philo_monitor, table);
+	pthread_detach(table->mid);
 	return (1);
 }

@@ -6,7 +6,7 @@
 /*   By: joleksia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/04 09:43:50 by joleksia          #+#    #+#             */
-/*   Updated: 2025/02/04 14:34:42 by joleksia         ###   ########.fr       */
+/*   Updated: 2025/02/13 12:54:35 by joleksia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,13 +33,23 @@ void	*philo(void *dat)
 	t_philo	*_philo;
 
 	_philo = (t_philo *) dat;
-	while (!_philo->table->s_locks.fin)
+	while (!philo_getbool(_philo->table))
 	{
 		philo_eat(_philo);
 		philo_sleep(_philo);
 		philo_think(_philo);
 	}
 	return (NULL);
+}
+
+static int	__philo_geteattim(t_table *t, size_t iter)
+{
+	int	_tim;
+
+	pthread_mutex_lock(&t->s_locks.tlock);
+	_tim = philo_gettime() - t->philos[iter].eat_lst;
+	pthread_mutex_unlock(&t->s_locks.tlock);
+	return (_tim);
 }
 
 void	*philo_monitor(void *dat)
@@ -49,20 +59,20 @@ void	*philo_monitor(void *dat)
 	int		_tim;
 
 	_table = (t_table *) dat;
-	while (!_table->s_locks.fin)
+	while (!philo_getbool(_table))
 	{
 		_iter = -1;
 		while (++_iter < (size_t) _table->s_sett.nop)
 		{
-			_tim = philo_gettime() - _table->philos[_iter].eat_lst;
+			_tim = __philo_geteattim(_table, _iter);
 			if (!_table->philos[_iter].eat_now && _tim > _table->s_sett.ttd)
 			{
-				philo_print(_table, _iter, "died");
-				_table->s_locks.fin = 1;
+				philo_print(_table, _table->philos[_iter].id, "died");
+				philo_setbool(_table, 1);
 			}
 			else if (_table->s_sett.notepme != -1
 				&& _table->philos[_iter].eat_count >= _table->s_sett.notepme)
-				_table->s_locks.fin = 1;
+				philo_setbool(_table, 1);
 		}
 		usleep(100);
 	}
@@ -79,8 +89,12 @@ int	philo_free(t_table *table)
 		pthread_join(table->philos[_iter].tid, NULL);
 		pthread_mutex_destroy(&table->frk[_iter]);
 	}
-	pthread_join(table->mid, NULL);
-	pthread_mutex_destroy(&table->s_locks.msg);
+	pthread_mutex_lock(&table->s_locks.mlock);
+	pthread_mutex_destroy(&table->s_locks.mlock);
+	pthread_mutex_lock(&table->s_locks.flock);
+	pthread_mutex_destroy(&table->s_locks.flock);
+	pthread_mutex_lock(&table->s_locks.tlock);
+	pthread_mutex_destroy(&table->s_locks.tlock);
 	free(table->frk);
 	free(table->philos);
 	return (1);

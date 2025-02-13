@@ -6,7 +6,7 @@
 /*   By: joleksia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 10:25:18 by joleksia          #+#    #+#             */
-/*   Updated: 2025/02/04 14:22:28 by joleksia         ###   ########.fr       */
+/*   Updated: 2025/02/13 12:52:41 by joleksia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,9 @@ typedef struct s_table
 	}			s_sett;
 	struct
 	{
-		t_mutex	msg;
+		t_mutex	mlock;
+		t_mutex flock;
+		t_mutex tlock;
 		int		start;
 		int		fin;
 	}			s_locks;
@@ -73,11 +75,13 @@ int		philo_pickup(t_philo *ph);
 int		philo_putdown(t_philo *ph);
 int		philo_start(t_table *table);
 
-/* ./philo/philo-utils.c */
+/* ./philo/philo-utils0.c */
 int		philo_atoi(const char *str);
 int		philo_isnumer(const char *str);
 size_t	philo_print(t_table *table, int id, const char *str);
 long	philo_gettime(void);
+int		philo_getbool(t_table *t);
+int		philo_setbool(t_table *t, int val);
 
 /* ./philo/philo-monitor.c */
 void	*philo_monitor(void *dat);
