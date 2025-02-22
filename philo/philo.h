@@ -6,7 +6,7 @@
 /*   By: joleksia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 10:25:18 by joleksia          #+#    #+#             */
-/*   Updated: 2025/02/22 09:49:34 by joleksia         ###   ########.fr       */
+/*   Updated: 2025/02/22 12:12:04 by joleksia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,6 @@ typedef struct s_table	t_table;
 typedef struct s_philo
 {
 	int			id;
-	int			eat_now;
 	long		eat_lst;
 	long		eat_count;
 	t_thread	tid;
@@ -47,9 +46,9 @@ typedef struct s_table
 	}			s_sett;
 	struct
 	{
-		t_mutex	slock;
 		t_mutex	mlock;
 		t_mutex	elock;
+		int		strt;
 		int		fin;
 	}			s_lck;
 	long		inittime;
@@ -75,6 +74,7 @@ int		philo_think(t_philo *ph);
 int		philo_pickup(t_philo *ph);
 int		philo_putdown(t_philo *ph);
 int		philo_start(t_table *table);
+void	*philo_solo(void *dat);
 
 /* ./philo/philo-utils0.c */
 int		philo_atoi(const char *str);
@@ -85,5 +85,7 @@ int		philo_isfin(t_table *table);
 int		philo_eatcount(t_philo *ph);
 int		philo_eatlast(t_philo *ph);
 int		philo_finish(t_table *table);
+int		philo_isfull(t_table *table);
+int		philo_isready(t_table *table);
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: joleksia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/01 13:01:06 by joleksia          #+#    #+#             */
-/*   Updated: 2025/02/22 09:41:33 by joleksia         ###   ########.fr       */
+/*   Updated: 2025/02/22 11:05:13 by joleksia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,20 +38,10 @@ int	philo_think(t_philo *ph)
 
 int	philo_pickup(t_philo *ph)
 {
-	if (ph->id % 2)
-	{
-		pthread_mutex_lock(ph->lfrk);
-		philo_print(ph->table, ph->id, "has taken a fork");
-		pthread_mutex_lock(ph->rfrk);
-		philo_print(ph->table, ph->id, "has taken a fork");
-	}
-	else
-	{
-		pthread_mutex_lock(ph->rfrk);
-		philo_print(ph->table, ph->id, "has taken a fork");
-		pthread_mutex_lock(ph->lfrk);
-		philo_print(ph->table, ph->id, "has taken a fork");
-	}
+	pthread_mutex_lock(ph->lfrk);
+	philo_print(ph->table, ph->id, "has taken a fork");
+	pthread_mutex_lock(ph->rfrk);
+	philo_print(ph->table, ph->id, "has taken a fork");
 	return (1);
 }
 

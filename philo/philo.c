@@ -6,7 +6,7 @@
 /*   By: joleksia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/04 09:43:50 by joleksia          #+#    #+#             */
-/*   Updated: 2025/02/22 09:55:07 by joleksia         ###   ########.fr       */
+/*   Updated: 2025/02/22 12:11:32 by joleksia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,13 +19,13 @@ int	main(int ac, char **av)
 	if ((ac == 5 || ac == 6) && philo_atoi(av[1]))
 	{
 		if (!philo_parse(&table, av))
-			return (printf("Error\n"));
+			return (write(2, "Error\n", 6));
 		philo_init_table(&table);
 		philo_start(&table);
 		philo_free(&table);
 		return (0);
 	}
-	return (printf("Error\n"));
+	return (write(2, "Error\n", 6));
 }
 
 void	*philo(void *dat)
@@ -35,6 +35,8 @@ void	*philo(void *dat)
 
 	_philo = (t_philo *) dat;
 	_table = _philo->table;
+	while (!philo_isready(_table))
+		;
 	if (_philo->id % 2)
 		usleep(2000);
 	while (1)
@@ -57,6 +59,8 @@ void	*philo_monitor(void *dat)
 	int		i;
 
 	_tab = (t_table *) dat;
+	while (!philo_isready(_tab))
+		;
 	while (!philo_isfin(_tab))
 	{
 		i = -1;
@@ -67,10 +71,9 @@ void	*philo_monitor(void *dat)
 			{
 				philo_print(_tab, i + 1, "died");
 				philo_finish(_tab);
+				break ;
 			}
-			if (_tab->s_sett.notepme != -1
-				&& _tab->s_sett.notepme < philo_eatcount(&_tab->philos[i]))
-				philo_finish(_tab);
+			_tab->s_lck.fin = philo_isfull(_tab);
 		}
 	}
 	return (NULL);
