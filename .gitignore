@@ -4,6 +4,7 @@
 
 # binary
 philo
+*.o
 *.out
 *.app
 *.exe
