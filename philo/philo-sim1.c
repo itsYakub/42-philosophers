@@ -6,7 +6,7 @@
 /*   By: joleksia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/01 13:01:06 by joleksia          #+#    #+#             */
-/*   Updated: 2025/02/04 14:33:15 by joleksia         ###   ########.fr       */
+/*   Updated: 2025/02/22 09:41:33 by joleksia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,15 +14,12 @@
 
 int	philo_eat(t_philo *ph)
 {
-	philo_pickup(ph);
 	philo_print(ph->table, ph->id, "is eating");
-	ph->eat_lst = philo_gettime();
-	ph->eat_now = 1;
 	philo_usleep(ph->table->s_sett.tte);
-	ph->eat_now = 0;
-	philo_putdown(ph);
-	if (ph->table->s_sett.notepme != -1)
-		ph->eat_count++;
+	pthread_mutex_lock(&ph->table->s_lck.elock);
+	ph->eat_lst = philo_gettime();
+	ph->eat_count++;
+	pthread_mutex_unlock(&ph->table->s_lck.elock);
 	return (1);
 }
 

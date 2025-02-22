@@ -6,29 +6,26 @@
 /*   By: joleksia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/01 12:58:53 by joleksia          #+#    #+#             */
-/*   Updated: 2025/02/13 10:48:06 by joleksia         ###   ########.fr       */
+/*   Updated: 2025/02/22 09:52:03 by joleksia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
+#include <pthread.h>
 
 int	philo_start(t_table *table)
 {
-	size_t	_iter;
+	int	i;
 
-	_iter = -1;
+	i = -1;
 	table->inittime = philo_gettime();
-	while (++_iter < (size_t) table->s_sett.nop)
+	while (++i < table->s_sett.nop)
 	{
-		table->philos[_iter].eat_now = 0;
-		table->philos[_iter].eat_count = 0;
-		table->philos[_iter].eat_lst = philo_gettime();
-		pthread_create(&table->philos[_iter].tid, NULL,
-			philo, &table->philos[_iter]);
-		usleep(100);
+		philo_init_philo(table, i);
+		pthread_create(&table->philos[i].tid, NULL, philo, &table->philos[i]);
+		usleep(1000);
 	}
-	pthread_create(&table->mid, NULL,
-		philo_monitor, table);
+	pthread_create(&table->mid, NULL, philo_monitor, table);
 	pthread_detach(table->mid);
 	return (1);
 }

@@ -6,7 +6,7 @@
 /*   By: joleksia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/04 09:43:50 by joleksia          #+#    #+#             */
-/*   Updated: 2025/02/13 12:54:35 by joleksia         ###   ########.fr       */
+/*   Updated: 2025/02/22 09:55:07 by joleksia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ int	main(int ac, char **av)
 	{
 		if (!philo_parse(&table, av))
 			return (printf("Error\n"));
-		philo_init(&table);
+		philo_init_table(&table);
 		philo_start(&table);
 		philo_free(&table);
 		return (0);
@@ -31,50 +31,47 @@ int	main(int ac, char **av)
 void	*philo(void *dat)
 {
 	t_philo	*_philo;
+	t_table	*_table;
 
 	_philo = (t_philo *) dat;
-	while (!philo_getbool(_philo->table))
+	_table = _philo->table;
+	if (_philo->id % 2)
+		usleep(2000);
+	while (1)
 	{
+		philo_pickup(_philo);
 		philo_eat(_philo);
+		philo_putdown(_philo);
 		philo_sleep(_philo);
 		philo_think(_philo);
+		if (philo_isfin(_table))
+			break ;
 	}
 	return (NULL);
 }
 
-static int	__philo_geteattim(t_table *t, size_t iter)
-{
-	int	_tim;
-
-	pthread_mutex_lock(&t->s_locks.tlock);
-	_tim = philo_gettime() - t->philos[iter].eat_lst;
-	pthread_mutex_unlock(&t->s_locks.tlock);
-	return (_tim);
-}
-
 void	*philo_monitor(void *dat)
 {
-	t_table	*_table;
-	size_t	_iter;
+	t_table	*_tab;
 	int		_tim;
+	int		i;
 
-	_table = (t_table *) dat;
-	while (!philo_getbool(_table))
+	_tab = (t_table *) dat;
+	while (!philo_isfin(_tab))
 	{
-		_iter = -1;
-		while (++_iter < (size_t) _table->s_sett.nop)
+		i = -1;
+		while (++i < _tab->s_sett.nop)
 		{
-			_tim = __philo_geteattim(_table, _iter);
-			if (!_table->philos[_iter].eat_now && _tim > _table->s_sett.ttd)
+			_tim = philo_gettime() - philo_eatlast(&_tab->philos[i]);
+			if (_tim >= _tab->s_sett.ttd)
 			{
-				philo_print(_table, _table->philos[_iter].id, "died");
-				philo_setbool(_table, 1);
+				philo_print(_tab, i + 1, "died");
+				philo_finish(_tab);
 			}
-			else if (_table->s_sett.notepme != -1
-				&& _table->philos[_iter].eat_count >= _table->s_sett.notepme)
-				philo_setbool(_table, 1);
+			if (_tab->s_sett.notepme != -1
+				&& _tab->s_sett.notepme < philo_eatcount(&_tab->philos[i]))
+				philo_finish(_tab);
 		}
-		usleep(100);
 	}
 	return (NULL);
 }
@@ -89,12 +86,10 @@ int	philo_free(t_table *table)
 		pthread_join(table->philos[_iter].tid, NULL);
 		pthread_mutex_destroy(&table->frk[_iter]);
 	}
-	pthread_mutex_lock(&table->s_locks.mlock);
-	pthread_mutex_destroy(&table->s_locks.mlock);
-	pthread_mutex_lock(&table->s_locks.flock);
-	pthread_mutex_destroy(&table->s_locks.flock);
-	pthread_mutex_lock(&table->s_locks.tlock);
-	pthread_mutex_destroy(&table->s_locks.tlock);
+	pthread_mutex_lock(&table->s_lck.mlock);
+	pthread_mutex_destroy(&table->s_lck.mlock);
+	pthread_mutex_lock(&table->s_lck.elock);
+	pthread_mutex_destroy(&table->s_lck.elock);
 	free(table->frk);
 	free(table->philos);
 	return (1);

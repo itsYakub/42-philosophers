@@ -6,7 +6,7 @@
 /*   By: joleksia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 10:25:18 by joleksia          #+#    #+#             */
-/*   Updated: 2025/02/13 12:52:41 by joleksia         ###   ########.fr       */
+/*   Updated: 2025/02/22 09:49:34 by joleksia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,12 +47,11 @@ typedef struct s_table
 	}			s_sett;
 	struct
 	{
+		t_mutex	slock;
 		t_mutex	mlock;
-		t_mutex flock;
-		t_mutex tlock;
-		int		start;
+		t_mutex	elock;
 		int		fin;
-	}			s_locks;
+	}			s_lck;
 	long		inittime;
 	t_philo		*philos;
 	t_mutex		*frk;
@@ -60,14 +59,16 @@ typedef struct s_table
 }	t_table;
 
 /* ./philo/philo.c */
+void	*philo(void *dat);
+void	*philo_monitor(void *dat);
 int		philo_free(t_table *table);
 
 /* ./phlo/philo-parse.c */
 int		philo_parse(t_table *table, char **av);
-int		philo_init(t_table *table);
+int		philo_init_table(t_table *table);
+int		philo_init_philo(t_table *table, size_t iter);
 
 /* ./philo/philo-sim0.c ./philo/philo-sim1.c */
-void	*philo(void *dat);
 int		philo_eat(t_philo *ph);
 int		philo_sleep(t_philo *ph);
 int		philo_think(t_philo *ph);
@@ -77,14 +78,12 @@ int		philo_start(t_table *table);
 
 /* ./philo/philo-utils0.c */
 int		philo_atoi(const char *str);
-int		philo_isnumer(const char *str);
 size_t	philo_print(t_table *table, int id, const char *str);
 long	philo_gettime(void);
-int		philo_getbool(t_table *t);
-int		philo_setbool(t_table *t, int val);
-
-/* ./philo/philo-monitor.c */
-void	*philo_monitor(void *dat);
 int		philo_usleep(long usec);
+int		philo_isfin(t_table *table);
+int		philo_eatcount(t_philo *ph);
+int		philo_eatlast(t_philo *ph);
+int		philo_finish(t_table *table);
 
 #endif
